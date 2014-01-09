@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 environment=$1
 cd /var/tmp
-wget --no-check-certificate https://bitbucket.org/tomburnell/table1_public_files/src/b21d88ff949b9824328f84b9a4aade0d3a950dfc/dt.tar.gz
-wget --no-check-certificate https://bitbucket.org/tomburnell/table1_public_files/src/b21d88ff949b9824328f84b9a4aade0d3a950dfc/statsd.tar.gz
+curl -O  https://bitbucket.org/tomburnell/table1_public_files/raw/b21d88ff949b9824328f84b9a4aade0d3a950dfc/dt.tar.gz
+curl -O  https://bitbucket.org/tomburnell/table1_public_files/raw/b21d88ff949b9824328f84b9a4aade0d3a950dfc/statsd.tar.gz
 
 cd /
 tar -xzvf /var/tmp/dt.tar.gz
