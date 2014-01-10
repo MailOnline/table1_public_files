@@ -17,7 +17,7 @@ if [ ! -d /command ]; then
     cd /var/tmp
     curl -O  "$public_files_base/dt.tar.gz"
     cd /
-    tar -xzvf /var/tmp/dt.tar.gz
+    tar -xzf /var/tmp/dt.tar.gz 
     echo "SV:123456:respawn:/command/svscanboot" >> /etc/inittab
     ps -ef | grep init | grep -v grep | awk '{print $2}' | xargs kill -HUP
 fi
@@ -31,7 +31,7 @@ curl -O "$public_files_base/statsd.tar.gz"
 rm -rf /opt/molswf/statsd
 mkdir -p /opt/molsfw/statsd
 cd /opt/molsfw/statsd
-tar -xzvf /var/tmp/statsd.tar.gz
+tar -xzf /var/tmp/statsd.tar.gz
 /opt/molsfw/statsd/mol-postinstall.sh blah POST-INSTALL
 svcadm enable /mailonline/MOLstatsd
 

@@ -2,6 +2,8 @@ REDIS_MASTER=$1
 
 pkgin in redis
 
+sleep 30
+
 # add slave line
 if [ "$REDIS_MASTER" ]; then
     echo "This Redis will be a slave of master: $REDIS_MASTER" 
@@ -9,5 +11,4 @@ if [ "$REDIS_MASTER" ]; then
 else 
     echo "This Redis will be a master"
 fi
-sleep 10
-svcadm enable redis
+svcadm enable /pkgsrc/redis
