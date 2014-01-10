@@ -1,8 +1,6 @@
 REDIS_MASTER=$1
 
-pkgin in redis
-
-sleep 30
+pkgin -y in redis
 
 # add slave line
 if [ "$REDIS_MASTER" ]; then

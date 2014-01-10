@@ -9,8 +9,8 @@ if [ -z "$environment" ]; then
 fi
 
 if ! cat $HOME/.profile | grep  '/command' > /dev/null; then echo "PATH=/command:\$PATH" >> $HOME/.profile;  fi
-if [ cat /etc/profile | grep 'NODE_ENV' ];then echo "export NODE_ENV=integration" >> /etc/profile; fi
-if [ cat /etc/profile | grep '/opt/local/bin' ];then echo "export PATH=/opt/local/bin:$PATH" >> /etc/profile; fi
+if ! cat /etc/profile | grep 'NODE_ENV'; then echo "export NODE_ENV=integration" >> /etc/profile; fi
+if ! cat /etc/profile | grep '/opt/local/bin'; then echo "export PATH=/opt/local/bin:$PATH" >> /etc/profile; fi
 
 mkdir -p /service
 if [ ! -d /command ]; then
