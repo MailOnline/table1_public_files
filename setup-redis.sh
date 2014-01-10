@@ -9,5 +9,5 @@ if [ "$REDIS_MASTER" ]; then
 else 
     echo "This Redis will be a master"
 fi
-sleep 5
+sleep 10
 svcadm enable redis
