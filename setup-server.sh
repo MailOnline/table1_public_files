@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 environment=$1
 
-public_files_base="https://bitbucket.org/tomburnell/table1_public_files/raw/b21d88ff949b9824328f84b9a4aade0d3a950dfc"
+public_files_base="https://bitbucket.org/tomburnell/table1_public_files/raw/master"
 
 if [ -z "$environment" ]; then
     echo "USAGE: $0 <environment>"
