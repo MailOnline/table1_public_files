@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 environment=$1
 
-public_files_base="https://bitbucket.org/tomburnell/table1_public_files/raw/master"
+public_files_base="https://bitbucket.org/MailOnline/table1_public_files/raw/master"
 
 if [ -z "$environment" ]; then
     echo "USAGE: $0 <environment>"
@@ -17,14 +17,14 @@ if [ ! -d /command ]; then
     cd /var/tmp
     curl -O  "$public_files_base/dt.tar.gz"
     cd /
-    tar -xzf /var/tmp/dt.tar.gz 
+    tar -xzf /var/tmp/dt.tar.gz
     echo "SV:123456:respawn:/command/svscanboot" >> /etc/inittab
     ps -ef | grep init | grep -v grep | awk '{print $2}' | xargs kill -HUP
 fi
 
 svcadm disable /mailonline/MOLstatsd
 cd /var/tmp
-if [ -f statsd.tar.gz ]; then 
+if [ -f statsd.tar.gz ]; then
     rm statsd.tar.gz
 fi
 curl -O "$public_files_base/statsd.tar.gz"
