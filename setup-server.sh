@@ -21,6 +21,7 @@ if [ ! -d /command ]; then
     echo "SV:123456:respawn:/command/svscanboot" >> /etc/inittab
     ps -ef | grep init | grep -v grep | awk '{print $2}' | xargs kill -HUP
 fi
+cp /command/* /opt/local/bin/
 
 svcadm disable /mailonline/MOLstatsd
 cd /var/tmp
