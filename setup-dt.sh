@@ -4,7 +4,7 @@ set -e
 
 environment=$1
 
-public_files_base="https://bitbucket.org/tomburnell/table1_public_files/raw/master"
+public_files_base="https://bitbucket.org/MailOnline/table1_public_files/raw/master"
 
 if [ -z "$environment" ]; then
     echo "USAGE: $0 <environment>"
