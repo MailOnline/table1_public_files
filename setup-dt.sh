@@ -24,7 +24,20 @@ if [ ! -d /command ]; then
     curl -O  "$public_files_base/$pkg"
     cd /
     tar -xzf /var/tmp/$pkg
-    echo "SV:123456:respawn:/command/svscanboot" >> /etc/inittab
-    ps -ef | grep init | grep -v grep | awk '{print $2}' | xargs kill -HUP
+
+    if [ "$uname" = "linux" ]; then
+        echo "
+        start on runlevel [12345]
+        stop on runlevel [^12345]
+        respawn
+        exec /command/svscanboot
+        " > /etc/init/svscan.conf
+
+        start svscan
+
+    else
+        echo "SV:123456:respawn:/command/svscanboot" >> /etc/inittab
+        ps -ef | grep init | grep -v grep | awk '{print $2}' | xargs kill -HUP
+    fi
 fi
 
