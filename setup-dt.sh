@@ -16,13 +16,14 @@ if ! cat /etc/profile | grep 'NODE_ENV'; then echo "export NODE_ENV=$environment
 if ! cat /etc/profile | grep '/opt/local/bin'; then echo "export PATH=/opt/local/bin:\$PATH" >> /etc/profile; fi
 
 uname=$(uname | perl -ne 'print lc')
+pkg="dt-$uname.tar.gz"
 
 mkdir -p /service
 if [ ! -d /command ]; then
     cd /var/tmp
-    curl -O  "$public_files_base/dt-$uname.tar.gz"
+    curl -O  "$public_files_base/$pkg"
     cd /
-    tar -xzf /var/tmp/dt.tar.gz 
+    tar -xzf /var/tmp/$pkg
     echo "SV:123456:respawn:/command/svscanboot" >> /etc/inittab
     ps -ef | grep init | grep -v grep | awk '{print $2}' | xargs kill -HUP
 fi
