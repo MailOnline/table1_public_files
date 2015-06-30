@@ -14,6 +14,7 @@ fi
 if ! cat $HOME/.profile | grep  '/command' > /dev/null; then echo "PATH=/command:\$PATH" >> $HOME/.profile;  fi
 if ! cat /etc/profile | grep 'NODE_ENV'; then echo "export NODE_ENV=$environment" >> /etc/profile; fi
 if ! cat /etc/profile | grep '/opt/local/bin'; then echo "export PATH=/opt/local/bin:\$PATH" >> /etc/profile; fi
+if ! cat /etc/profile | grep '/command'; then echo "export PATH=/command:\$PATH" >> /etc/profile; fi
 
 uname=$(uname | perl -ne 'print lc')
 pkg="dt-$uname.tar.gz"
