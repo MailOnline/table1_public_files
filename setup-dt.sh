@@ -2,17 +2,9 @@
 set -e 
 [ $DEBUG ] && set -x
 
-environment=$1
-
 public_files_base="https://bitbucket.org/MailOnline/table1_public_files/raw/master"
 
-if [ -z "$environment" ]; then
-    echo "USAGE: $0 <environment>"
-    exit 2
-fi
-
 if ! cat $HOME/.profile | grep  '/command' > /dev/null; then echo -e "\nPATH=/command:\$PATH" >> $HOME/.profile;  fi
-if ! cat /etc/profile | grep 'NODE_ENV'; then echo -e "\nexport NODE_ENV=$environment" >> /etc/profile; fi
 if ! cat /etc/profile | grep '/opt/local/bin'; then echo -e "\nexport PATH=/opt/local/bin:\$PATH" >> /etc/profile; fi
 if ! cat /etc/profile | grep '/command'; then echo -e "\nexport PATH=/command:\$PATH" >> /etc/profile; fi
 
