@@ -18,6 +18,7 @@ chmod g+wrxs /service /opt/service
 
 if [ ! -d /command ]; then
     cd /var/tmp
+    echo "Downloading $public_files_base/$pkg"
     wget "$public_files_base/$pkg"
     mkdir dt-$$
     pushd dt-$$
@@ -34,10 +35,12 @@ if [ ! -d /command ]; then
         exec /command/svscanboot
         " > /etc/init/svscan.conf
 
+        echo "Starting Daemontools for the first time"
         start svscan
 
     else
         echo "SV:123456:respawn:/command/svscanboot" >> /etc/inittab
+        echo "Starting Daemontools for the first time"
         ps -ef | grep init | grep -v grep | awk '{print $2}' | xargs kill -HUP
     fi
 fi
