@@ -18,9 +18,13 @@ chmod g+wrxs /service /opt/service
 
 if [ ! -d /command ]; then
     cd /var/tmp
-    curl -O  "$public_files_base/$pkg"
-    cd /
-    tar -xzf /var/tmp/$pkg
+    wget "$public_files_base/$pkg"
+    mkdir dt-$$
+    pushd dt-$$
+    tar -oxzf /var/tmp/$pkg .
+    mv package command /
+    popd
+    rm -rf /var/tmp/dt-$$
 
     if [ "$uname" = "linux" ]; then
         echo "
