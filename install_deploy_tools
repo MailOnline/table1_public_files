@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -e
+
+function usage() {
+
+    if [ "$1" ]; then
+        echo "Error: $1"
+        echo ""
+    fi
+    echo ""
+    echo "USAGE:"
+    echo "        install_from_sinopia [-htdDr] VERSION"
+    echo ""
+    echo " -d         : output debug logging"
+    echo " -h         : help"
+    echo " -D dir     : dir to install into (will create if it does not exist)"
+    echo " -t token   : provide npm auth token"
+    echo " -r repo    : host:port of npm repo"
+    echo " -p     : source profile after installing"
+    echo ""
+    echo "DESCRIPTION:"
+    echo "        Will download deploy tools from sinopia and return the path it has downloaded to"
+    exit 1;
+}
+
+while getopts ":dphD:t:r:" opt; do
+  case $opt in
+    h)
+      usage
+      ;;
+    d)
+      DEBUG=true
+      ;;
+    D)
+      dir=$OPTARG
+      ;;
+    t)
+      npm_token=$OPTARG
+      ;;
+    r)
+      npm_repo=$optarg
+      ;;
+    p)
+      source_profile=true
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+
+shift $(( OPTIND -1  ))
+version=$1
+
+
+if [ -z "$version" ]; then
+  usage "No version supplied"
+fi
+
+if [ -z "$dir" ]; then
+    dir=$(mktemp -d /var/tmp/deploy_tools_${version}_XXXXXXXXX)
+    [ $DEBUG ] && echo >&2 "Using temporary dir: $dir"
+else 
+    if [ ! -d "$dir" ]; then
+        [ $DEBUG ] && echo >&2  "$dir does not exist, making it"
+        mkdir -p "$dir"
+    fi
+fi
+
+[ $DEBUG ] && echo >&2 "Installing Deploy Tools version: $version into $dir "
+
+pushd $dir > /dev/null
+
+is_token_set=$(cat ~/.npmrc | grep authToken | grep $npm_repo)
+if [ -z "$is_token_set" ] && [ -z "$NPM_TOKEN" ]; then
+    >&2 echo "Error: No X_NPM_TOKEN provided or authToken found in ~/.npmrc"
+    return 1;
+fi
+
+# load nvm if not loaded
+if ! type node > /dev/null; then
+    if ! nvm --version; then
+        . ~/.nvm/nvm.sh
+    fi
+fi
+
+if [ "$npm_token" ]; then
+    npm config set registry http://$npm_repo/
+    npm set //$npm_repo/:_authToken $npm_token
+fi
+npm init -y > /dev/null
+npm install @mol-platform/deploy_tools@$version > .npminstalllog 2>&1
+echo InstallDir: $dir
+ln -sf node_modules/@mol-platform/deploy_tools dt
+
+profile_path=$dir/dt/profile
+
+if [ $source_profile ]; then
+    [ $DEBUG ] && echo "Sourcing profile at $profile_path"
+
+    X_DEPLOY_TOOLS_VERSION="" . $profile_path
+fi
+
