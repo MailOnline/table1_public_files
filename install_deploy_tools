@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
+# determine if sourced
+# from https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced/23009039#23009039
+([[ -n $ZSH_EVAL_CONTEXT && $ZSH_EVAL_CONTEXT =~ :file$ ]] || 
+ [[ -n $KSH_VERSION && $(cd "$(dirname -- "$0")" &&
+         printf '%s' "${PWD%/}/")$(basename -- "$0") != "${.sh.file}" ]] || 
+  [[ -n $BASH_VERSION && $0 != "$BASH_SOURCE" ]]) && sourced=1 || sourced=0
+
+
 function usage() {
 
     if [ "$1" ]; then
@@ -20,7 +28,11 @@ function usage() {
     echo ""
     echo "DESCRIPTION:"
     echo "        Will download deploy tools from sinopia and return the path it has downloaded to"
-    exit 1;
+    if [ $sourced ]; then
+        return;
+    else 
+        exit 1;
+    fi
 }
 
 while getopts ":dphD:t:r:" opt; do
