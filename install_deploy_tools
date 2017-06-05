@@ -8,6 +8,20 @@ set -e
          printf '%s' "${PWD%/}/")$(basename -- "$0") != "${.sh.file}" ]] || 
   [[ -n $BASH_VERSION && $0 != "$BASH_SOURCE" ]]) && sourced=1 || sourced=0
 
+#function handle_exit () {
+#    echo >&2 "Script exit detected $sourced"
+#
+#    if [ $sourced -gt 0 ]; then
+#        echo "Not exiting"
+#        return;
+#    else 
+#        echo "Exiting"
+#        exit 1;
+#    fi
+#}
+#trap "handle_exit" EXIT
+#trap "handle_exit" ERR
+
 
 function usage() {
 
@@ -24,16 +38,19 @@ function usage() {
     echo " -D dir     : dir to install into (will create if it does not exist)"
     echo " -t token   : provide npm auth token"
     echo " -r repo    : host:port of npm repo"
-    echo " -p     : source profile after installing"
+   # echo " -p         : source profile after installing"
     echo ""
     echo "DESCRIPTION:"
     echo "        Will download deploy tools from sinopia and return the path it has downloaded to"
     if [ $sourced ]; then
+        echo "Sourced"
         return;
     else 
         exit 1;
     fi
 }
+
+DEBUG=false
 
 while getopts ":dphD:t:r:" opt; do
   case $opt in
@@ -42,6 +59,7 @@ while getopts ":dphD:t:r:" opt; do
       ;;
     d)
       DEBUG=true
+      set -x
       ;;
     D)
       dir=$OPTARG
@@ -67,6 +85,7 @@ version=$1
 
 if [ -z "$version" ]; then
   usage "No version supplied"
+  return 1;
 fi
 
 if [ -z "$dir" ]; then
@@ -81,13 +100,6 @@ fi
 
 [ $DEBUG ] && echo >&2 "Installing Deploy Tools version: $version into $dir "
 
-pushd $dir > /dev/null
-
-is_token_set=$(cat ~/.npmrc | grep authToken | grep $npm_repo)
-if [ -z "$is_token_set" ] && [ -z "$NPM_TOKEN" ]; then
-    >&2 echo "Error: No X_NPM_TOKEN provided or authToken found in ~/.npmrc"
-    return 1;
-fi
 
 # load nvm if not loaded
 if ! type node > /dev/null; then
@@ -96,20 +108,44 @@ if ! type node > /dev/null; then
     fi
 fi
 
-if [ "$npm_token" ]; then
+# set registry/repo if provided
+if [ "$npm_repo" ]; then
+   echo >&2 "Seting Repo: $registry_set"
     npm config set registry http://$npm_repo/
-    npm set //$npm_repo/:_authToken $npm_token
 fi
+
+# establish value of repo that is set
+registry_set=$(grep 'registry='  ~/.npmrc | cut -d= -f2)
+[ $DEBUG ] && echo >&2 "Registry: $registry_set"
+if [ -z "$registry_set" ]; then
+    usage "No registry set and npm_repo not provided"
+    return 1;
+fi
+
+# set token if provided
+if [ "$npm_token" ]; then
+    echo >&2 "Seting Token: $npm_token for repo $registry_set"
+    npm set //$registry_set/:_authToken $npm_token
+fi
+
+token_reg=$(echo "$registry_set" | cut -d: -f2)
+# establish value of token
+is_token_set=$(grep authToken ~/.npmrc | grep "$token_reg")
+[ $DEBUG ] && echo >&2 "Token: $is_token_set"
+if [ -z "$is_token_set" ]; then
+    usage "No X_NPM_TOKEN provided or authToken found in ~/.npmrc"
+    return 1;
+fi
+
+pushd $dir > /dev/null
 npm init -y > /dev/null
 npm install @mol-platform/deploy_tools@$version > .npminstalllog 2>&1
-echo InstallDir: $dir
+[ $DEBUG ] &&  echo InstallDir: $dir
 ln -sf node_modules/@mol-platform/deploy_tools dt
+popd > /dev/null
 
 profile_path=$dir/dt/profile
-
-if [ $source_profile ]; then
-    [ $DEBUG ] && echo "Sourcing profile at $profile_path"
-
-    X_DEPLOY_TOOLS_VERSION="" . $profile_path
-fi
+[ $DEBUG ] &&  echo ProfilePath: $profilePath
+echo "---------------------------------------------------"
+echo "Now run: . $profile_path to use"
 
