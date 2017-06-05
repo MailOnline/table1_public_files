@@ -3,6 +3,7 @@ set -e
 
 function handle_exit () {
     [ $DEBUG ] && echo >&2 "Script exit detected"
+    echo "Done"
     exit 1;
 }
 
