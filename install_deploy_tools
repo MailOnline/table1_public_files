@@ -92,6 +92,8 @@ if ! type node > /dev/null; then
     fi
 fi
 
+echo "Node: "$(node -v)  " Npm: " $(npm -v)
+
 # set registry/repo if provided
 if [ "$npm_repo" ]; then
    echo >&2 "Seting Repo: $registry_set"
