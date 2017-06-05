@@ -1,30 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
-# determine if sourced
-# from https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced/23009039#23009039
-([[ -n $ZSH_EVAL_CONTEXT && $ZSH_EVAL_CONTEXT =~ :file$ ]] || 
- [[ -n $KSH_VERSION && $(cd "$(dirname -- "$0")" &&
-         printf '%s' "${PWD%/}/")$(basename -- "$0") != "${.sh.file}" ]] || 
-  [[ -n $BASH_VERSION && $0 != "$BASH_SOURCE" ]]) && sourced=1 || sourced=0
+function handle_exit () {
+    [ $DEBUG ] && echo >&2 "Script exit detected"
+    exit 1;
+}
 
-#function handle_exit () {
-#    echo >&2 "Script exit detected $sourced"
-#
-#    if [ $sourced -gt 0 ]; then
-#        echo "Not exiting"
-#        return;
-#    else 
-#        echo "Exiting"
-#        exit 1;
-#    fi
-#}
-#trap "handle_exit" EXIT
-#trap "handle_exit" ERR
-
+trap "handle_exit" EXIT
+trap "handle_exit" ERR
 
 function usage() {
-
     if [ "$1" ]; then
         echo "Error: $1"
         echo ""
@@ -35,13 +20,17 @@ function usage() {
     echo ""
     echo " -d         : output debug logging"
     echo " -h         : help"
-    echo " -D dir     : dir to install into (will create if it does not exist)"
+    echo " -D dir     : dir to install version into"
     echo " -t token   : provide npm auth token"
     echo " -r repo    : host:port of npm repo"
-   # echo " -p         : source profile after installing"
+    echo " -l         : create local link dt => path to deploy tools"
+    echo " -f         : force install a previous version"
     echo ""
     echo "DESCRIPTION:"
     echo "        Will download deploy tools from sinopia and return the path it has downloaded to"
+    echo ""
+    echo ""
+    echo ""
     if [ $sourced ]; then
         echo "Sourced"
         return;
@@ -49,10 +38,9 @@ function usage() {
         exit 1;
     fi
 }
+base_dir=/var/tmp/deploy_tools
 
-DEBUG=false
-
-while getopts ":dphD:t:r:" opt; do
+while getopts ":ldhD:t:r:" opt; do
   case $opt in
     h)
       usage
@@ -62,7 +50,7 @@ while getopts ":dphD:t:r:" opt; do
       set -x
       ;;
     D)
-      dir=$OPTARG
+      base_dir=$OPTARG
       ;;
     t)
       npm_token=$OPTARG
@@ -70,8 +58,8 @@ while getopts ":dphD:t:r:" opt; do
     r)
       npm_repo=$optarg
       ;;
-    p)
-      source_profile=true
+    l)
+      local_link=true
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -88,18 +76,14 @@ if [ -z "$version" ]; then
   return 1;
 fi
 
-if [ -z "$dir" ]; then
-    dir=$(mktemp -d /var/tmp/deploy_tools_${version}_XXXXXXXXX)
-    [ $DEBUG ] && echo >&2 "Using temporary dir: $dir"
-else 
-    if [ ! -d "$dir" ]; then
-        [ $DEBUG ] && echo >&2  "$dir does not exist, making it"
-        mkdir -p "$dir"
-    fi
+if [ ! -d "$base_dir" ]; then
+    [ $DEBUG ] && echo >&2  "$base_dir does not exist, making it"
+    mkdir -p "$base_dir"
 fi
 
-[ $DEBUG ] && echo >&2 "Installing Deploy Tools version: $version into $dir "
+temp_dir=$(mktemp -d $base_dir/_deploy_tools_${version}_XXXXXXXXX)
 
+[ $DEBUG ] && echo >&2 "Installing Deploy Tools version: $version into $temp_dir "
 
 # load nvm if not loaded
 if ! type node > /dev/null; then
@@ -137,15 +121,39 @@ if [ -z "$is_token_set" ]; then
     return 1;
 fi
 
-pushd $dir > /dev/null
+pushd $temp_dir > /dev/null
 npm init -y > /dev/null
-npm install @mol-platform/deploy_tools@$version > .npminstalllog 2>&1
-[ $DEBUG ] &&  echo InstallDir: $dir
+npm install --save @mol-platform/deploy_tools@$version > .npminstalllog 2>&1
+
 ln -sf node_modules/@mol-platform/deploy_tools dt
+installed_version=$(npm list --long --parseable @mol-platform/deploy_tools  | cut -d: -f2 | sed 's/.*@//')
 popd > /dev/null
 
-profile_path=$dir/dt/profile
+ 
+if [ -d "$base_dir/$installed_version" ]; then
+  if [ $force_deploy ]; then
+      rm -rf "$base_dir/$installed_version"
+      mv $temp_dir $base_dir/$installed_version
+  else
+      echo >&2 "WARN: $installed_version already exists, use -f to replace"
+  fi
+else
+  mv $temp_dir $base_dir/$installed_version
+fi
+
+final_dir=$base_dir/$installed_version
+
+profile_path=$final_dir/dt/profile
 [ $DEBUG ] &&  echo ProfilePath: $profilePath
-echo "---------------------------------------------------"
-echo "Now run: . $profile_path to use"
+
+# Do not change the following output as it will be used by calling scripts.
+echo "InstallDir: $final_dir"
+echo "ProfilePath: $profile_path"
+
+if [ "$local_link" ]; then 
+    ln -sf $final_dir/dt ./dt
+    echo "LocalLink: ./dt"
+fi
+
+
 
