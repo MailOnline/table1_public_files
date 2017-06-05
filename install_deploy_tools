@@ -87,10 +87,14 @@ temp_dir=$(mktemp -d $base_dir/_deploy_tools_${version}_XXXXXXXXX)
 
 # load nvm if not loaded
 if ! type npm > /dev/null; then
-    if ! nvm --version; then
+    echo "No npm in path"
+    if type nvm && nvm --version; then
+        echo "nvm loaded"
+    else
+        echo "loading nvm"
         . ~/.nvm/nvm.sh
-        nvm use 6
     fi
+    nvm use 6
 fi
 
 echo "Node: "$(node -v)  " Npm: " $(npm -v)
