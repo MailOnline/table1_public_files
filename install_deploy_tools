@@ -85,22 +85,22 @@ temp_dir=$(mktemp -d $base_dir/_deploy_tools_XXXXXXXXX)
 [ $DEBUG ] && echo >&2 "Installing Deploy Tools version: $version into $temp_dir "
 
 # load nvm if not loaded
-if ! type npm > /dev/null; then
-    echo "No npm in path"
-    if type nvm && nvm --version; then
-        echo "nvm loaded"
+if ! type npm 2>&1 > /dev/null; then
+    [ $DEBUG ] && >&2 echo "Nvm not found in path"
+    if type nvm 2>&1 > /dev/null && nvm --version 2>&1 > /dev/null ; then
+        [ $DEBUG ] && >&2 echo "Nvm already loaded"
     else
-        echo "loading nvm"
+        [ $DEBUG ] && >&2 echo "Loading nvm"
         . ~/.nvm/nvm.sh
     fi
     nvm use 6
 fi
 
-echo "Node: "$(node -v)  " Npm: " $(npm -v)
+[ $DEBUG ] && echo >&2 "Node: "$(node -v)  " Npm: " $(npm -v)
 
 # set registry/repo if provided
 if [ "$npm_repo" ]; then
-   echo >&2 "Setting NPM repo: $npm_repo"
+    echo >&2 "Setting NPM repo: $npm_repo"
     npm config set registry http://$npm_repo/
 fi
 
@@ -108,13 +108,13 @@ fi
 registry_set=$(grep 'registry='  ~/.npmrc | cut -d= -f2)
 [ $DEBUG ] && echo >&2 "Registry: $registry_set"
 if [ -z "$registry_set" ]; then
-    usage "No registry set and npm_repo not provided"
+    usage "No registry set (in .npmrc) and npm_repo not provided"
     return 1;
 fi
 
 # set token if provided
 if [ "$npm_token" ]; then
-    echo >&2 "Seting Token: $npm_token for repo $registry_set"
+    [ $DEBUG ] && echo >&2 "Setting Token: $npm_token for repo $registry_set"
     npm set //$registry_set/:_authToken $npm_token
 fi
 
@@ -123,7 +123,7 @@ token_reg=$(echo "$registry_set" | cut -d: -f2)
 is_token_set=$(grep authToken ~/.npmrc | grep "$token_reg")
 [ $DEBUG ] && echo >&2 "Token: $is_token_set"
 if [ -z "$is_token_set" ]; then
-    usage "No X_NPM_TOKEN provided or authToken found in ~/.npmrc"
+    usage "No X_NPM_TOKEN provided or authToken not found in ~/.npmrc"
     return 1;
 fi
 
@@ -153,6 +153,7 @@ profile_path=$final_dir/dt/profile
 [ $DEBUG ] &&  echo ProfilePath: $profilePath
 
 # Do not change the following output as it will be used by calling scripts.
+echo "Version: $installed_version"
 echo "InstallDir: $final_dir"
 echo "ProfilePath: $profile_path"
 
