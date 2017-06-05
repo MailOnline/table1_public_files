@@ -4,11 +4,10 @@ set -e
 function handle_exit () {
     [ $DEBUG ] && echo >&2 "Script exit detected"
     echo "Done"
-    exit 1;
 }
 
-trap "handle_exit" EXIT
-trap "handle_exit" ERR
+#trap "handle_exit" EXIT
+#trap "handle_exit" ERR
 
 function usage() {
     if [ "$1" ]; then
@@ -161,4 +160,3 @@ if [ "$local_link" ]; then
     ln -sf $final_dir/dt ./dt
     echo "LocalLink: ./dt"
 fi
-exit 0;
