@@ -86,9 +86,10 @@ temp_dir=$(mktemp -d $base_dir/_deploy_tools_${version}_XXXXXXXXX)
 [ $DEBUG ] && echo >&2 "Installing Deploy Tools version: $version into $temp_dir "
 
 # load nvm if not loaded
-if ! type node > /dev/null; then
+if ! type npm > /dev/null; then
     if ! nvm --version; then
         . ~/.nvm/nvm.sh
+        nvm use 6
     fi
 fi
 
