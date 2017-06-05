@@ -161,6 +161,4 @@ if [ "$local_link" ]; then
     ln -sf $final_dir/dt ./dt
     echo "LocalLink: ./dt"
 fi
-
-
-
+exit 0;
