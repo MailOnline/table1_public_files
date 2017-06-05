@@ -56,7 +56,7 @@ while getopts ":ldhD:t:r:" opt; do
       npm_token=$OPTARG
       ;;
     r)
-      npm_repo=$optarg
+      npm_repo=$OPTARG
       ;;
     l)
       local_link=true
@@ -101,7 +101,7 @@ echo "Node: "$(node -v)  " Npm: " $(npm -v)
 
 # set registry/repo if provided
 if [ "$npm_repo" ]; then
-   echo >&2 "Seting Repo: $registry_set"
+   echo >&2 "Setting NPM repo: $npm_repo"
     npm config set registry http://$npm_repo/
 fi
 
