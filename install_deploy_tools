@@ -40,7 +40,7 @@ function usage() {
 }
 base_dir=/var/tmp/deploy_tools
 
-while getopts ":ldhD:t:r:" opt; do
+while getopts "ldhD:t:r:" opt; do
   case $opt in
     h)
       usage
@@ -70,7 +70,6 @@ done
 shift $(( OPTIND -1  ))
 version=$1
 
-
 if [ -z "$version" ]; then
   usage "No version supplied"
   return 1;
@@ -81,7 +80,7 @@ if [ ! -d "$base_dir" ]; then
     mkdir -p "$base_dir"
 fi
 
-temp_dir=$(mktemp -d $base_dir/_deploy_tools_${version}_XXXXXXXXX)
+temp_dir=$(mktemp -d $base_dir/_deploy_tools_XXXXXXXXX)
 
 [ $DEBUG ] && echo >&2 "Installing Deploy Tools version: $version into $temp_dir "
 
@@ -130,7 +129,7 @@ fi
 
 pushd $temp_dir > /dev/null
 npm init -y > /dev/null
-npm install --save @mol-platform/deploy_tools@$version > .npminstalllog 2>&1
+npm install --save @mol-platform/deploy_tools@${version} > .npminstalllog 2>&1
 
 ln -sf node_modules/@mol-platform/deploy_tools dt
 installed_version=$(npm list --long --parseable @mol-platform/deploy_tools  | cut -d: -f2 | sed 's/.*@//')
