@@ -141,7 +141,9 @@ if [ -d "$base_dir/$installed_version" ]; then
   [ $DEBUG ] && >&2 ls -l "$base_dir/$installed_version"
   [ $DEBUG ] && >&2 ls -l "$base_dir/$installed_version/@mol-platform/deploy_tools/profile"
   [ $DEBUG ] && >&2 ls -l "$base_dir/$installed_version/@mol-platform/deploy_tools"
-  if [ $force_deploy ]; then
+        
+  # if empty or force_deploy set..        
+  if [ ! -e $base_dir/$installed_version/dt/profile ] || [ $force_deploy ]; then
       rm -rf "$base_dir/$installed_version"
       mv $temp_dir $base_dir/$installed_version
   else
