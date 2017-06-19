@@ -138,11 +138,13 @@ popd > /dev/null
 
 #if it doesnt exist already or -f (force) supplied, renaming it to the version that was actually downloaded 
 if [ -d "$base_dir/$installed_version" ]; then
+  [ $DEBUG ] && >&2 ls -l $base_dir/$installed_version
   if [ $force_deploy ]; then
       rm -rf "$base_dir/$installed_version"
       mv $temp_dir $base_dir/$installed_version
   else
       echo >&2 "WARN: $installed_version already exists, use -f to replace"
+      [ $DEBUG ] && >&2 ls -l $base_dir/$installed_version/dt
   fi
 else
   mv $temp_dir $base_dir/$installed_version
@@ -152,6 +154,7 @@ final_dir=$base_dir/$installed_version
 
 profile_path=$final_dir/dt/profile
 [ $DEBUG ] &&  echo ProfilePath: $profilePath
+[ $DEBUG ] &&  ls -l $profilePath
 
 # Do not change the following output as it will be used by calling scripts.
 echo "Version: $installed_version"
@@ -159,6 +162,7 @@ echo "InstallDir: $final_dir"
 echo "ProfilePath: $profile_path"
 
 if [ "$local_link" ]; then 
+    [ $DEBUG ] &&  ls -l $final_dir/dt/profile
     ln -sf $final_dir/dt ./dt
     echo "LocalLink: ./dt"
 fi
