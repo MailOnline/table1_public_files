@@ -16,7 +16,7 @@ function usage() {
     fi
     echo ""
     echo "USAGE:"
-    echo "        install_from_sinopia [-htdDr] VERSION"
+    echo "        install_from_sinopia [-htdDr] SEMVER"
     echo ""
     echo " -d         : output debug logging"
     echo " -h         : help"
@@ -28,8 +28,9 @@ function usage() {
     echo ""
     echo "DESCRIPTION:"
     echo "        Will download deploy tools from sinopia and return the path it has downloaded to"
-    echo ""
-    echo ""
+    echo "        You can provide a semantic version https://docs.npmjs.com/misc/semver "
+    echo "        The final installation directory will use the actual version downloaded"
+    echo "        If that version has previously been downloaded, it will not be replaced without supplying -f"
     echo ""
     if [ $sourced ]; then
         echo "Sourced"
@@ -85,9 +86,9 @@ temp_dir=$(mktemp -d $base_dir/_deploy_tools_XXXXXXXXX)
 [ $DEBUG ] && echo >&2 "Installing Deploy Tools version: $version into $temp_dir "
 
 # load nvm if not loaded
-if ! type npm 2>&1 > /dev/null; then
+if ! type npm > /dev/null 2>&1 ; then
     [ $DEBUG ] && >&2 echo "Nvm not found in path"
-    if type nvm 2>&1 > /dev/null && nvm --version 2>&1 > /dev/null ; then
+    if type nvm > /dev/null 2>&1 && nvm --version > /dev/null 2>&1; then
         [ $DEBUG ] && >&2 echo "Nvm already loaded"
     else
         [ $DEBUG ] && >&2 echo "Loading nvm"
@@ -127,15 +128,15 @@ if [ -z "$is_token_set" ]; then
     return 1;
 fi
 
+# initialising temp directory and installing deploy tools using npm
 pushd $temp_dir > /dev/null
 npm init -y > /dev/null
 npm install --save @mol-platform/deploy_tools@${version} > .npminstalllog 2>&1
-
 ln -sf node_modules/@mol-platform/deploy_tools dt
 installed_version=$(npm list --long --parseable @mol-platform/deploy_tools  | cut -d: -f2 | sed 's/.*@//')
 popd > /dev/null
 
- 
+#if it doesnt exist already or -f (force) supplied, renaming it to the version that was actually downloaded 
 if [ -d "$base_dir/$installed_version" ]; then
   if [ $force_deploy ]; then
       rm -rf "$base_dir/$installed_version"
