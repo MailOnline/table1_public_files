@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
+if [ "$DEBUG" ]; then
+  set -x
+fi
+
 function handle_exit () {
     [ $DEBUG ] && echo >&2 "Script exit detected"
     echo "Done"
@@ -170,6 +174,8 @@ echo "ProfilePath: $profile_path"
 
 if [ "$local_link" ]; then 
     [ $DEBUG ] &&  ls -l $final_dir/dt/profile
+    [ $DEBUG ] && echo "Creating symlink ./dt => $final_dir/dt"
     ln -sf $final_dir/dt ./dt
+    [ $DEBUG ] &&  ls -l ./dt
     echo "LocalLink: ./dt"
 fi
