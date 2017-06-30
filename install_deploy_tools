@@ -138,7 +138,7 @@ fi
 pushd $temp_dir > /dev/null
 npm init -y > /dev/null
 npm install --save @mol-platform/deploy_tools@${version} > .npminstalllog 2>&1
-ln -sf node_modules/@mol-platform/deploy_tools dt
+ln -nsf node_modules/@mol-platform/deploy_tools dt
 installed_version=$(npm list --long --parseable @mol-platform/deploy_tools  | cut -d: -f2 | sed 's/.*@//')
 popd > /dev/null
 
@@ -175,7 +175,7 @@ echo "ProfilePath: $profile_path"
 if [ "$local_link" ]; then 
     [ $DEBUG ] &&  ls -l $final_dir/dt/profile
     [ $DEBUG ] && echo "Creating symlink ./dt => $final_dir/dt"
-    ln -sf $final_dir/dt ./dt
+    ln -nsf $final_dir/dt ./dt
     [ $DEBUG ] &&  ls -l ./dt
     echo "LocalLink: ./dt"
 fi
