@@ -11,7 +11,7 @@ function handle_exit () {
 }
 
 
-function handle_exit () {
+function handle_err () {
     echo >&2 "Script ERROR detected "
     exit 1;
 }
