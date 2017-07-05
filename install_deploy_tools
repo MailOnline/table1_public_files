@@ -11,13 +11,13 @@ function handle_exit () {
 }
 
 
-function handle_err () {
-    echo >&2 "Script ERROR detected "
+function handle_error () {
+    echo >&2 "Script ERROR detected at line $1"
     exit 1;
 }
 
 #trap "handle_exit" EXIT
-trap "handle_err" ERR
+trap 'handle_error ${LINENO}' ERR
 
 function usage() {
     echo ""
