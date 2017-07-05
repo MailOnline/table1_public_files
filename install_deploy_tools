@@ -112,7 +112,7 @@ if [ "$npm_repo" ]; then
 fi
 
 # establish value of repo that is set
-registry_set=$(grep 'registry='  ~/.npmrc | cut -d= -f2)
+registry_set=$(grep 'registry\s*='  ~/.npmrc | cut -d= -f2)
 [ $DEBUG ] && echo >&2 "Registry: $registry_set"
 if [ -z "$registry_set" ]; then
     usage "No registry set (in .npmrc) and npm_repo not provided"
