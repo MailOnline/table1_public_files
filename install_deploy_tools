@@ -139,7 +139,7 @@ pushd $temp_dir > /dev/null
 npm init -y > /dev/null
 npm install --save @mol-platform/deploy_tools@${version} > .npminstalllog 2>&1
 ln -nsf node_modules/@mol-platform/deploy_tools dt
-installed_version=$(npm list --long --parseable @mol-platform/deploy_tools  | cut -d: -f2 | sed 's/.*@//')
+installed_version=$(npm list --long --parseable |  grep @mol-platform/deploy_tools@  | cut -d: -f2 | sed 's/.*@//')
 popd > /dev/null
 
 #if it doesnt exist already or -f (force) supplied, renaming it to the version that was actually downloaded 
