@@ -92,14 +92,14 @@ temp_dir=$(mktemp -d $base_dir/_deploy_tools_XXXXXXXXX)
 [ $DEBUG ] && echo >&2 "Installing Deploy Tools version: $version into $temp_dir "
 
 # load nvm if not loaded
-if ! type npm > /dev/null 2>&1 ; then
-    [ $DEBUG ] && >&2 echo "Nvm not found in path"
-    if type nvm > /dev/null 2>&1 && nvm --version > /dev/null 2>&1; then
-        [ $DEBUG ] && >&2 echo "Nvm already loaded"
-    else
-        [ $DEBUG ] && >&2 echo "Loading nvm"
-        . ~/.nvm/nvm.sh
-    fi
+echo "Checking NVM"
+if type nvm > /dev/null 2>&1 && nvm --version > /dev/null 2>&1; then
+    #[ $DEBUG ] && >&2 
+    echo "Nvm already loaded"
+else
+    #[ $DEBUG ] && >&2 
+    echo "Loading nvm"
+    . ~/.nvm/nvm.sh
 fi
 nvm use 6
 
