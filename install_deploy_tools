@@ -101,7 +101,9 @@ else
     echo "Loading nvm"
     . ~/.nvm/nvm.sh
 fi
+
 X_DT_NODE_VERSION=${X_DT_NODE_VERSION:-6}
+echo "Installing/Using node version $X_DT_NODE_VERSION"
 nvm install $X_DT_NODE_VERSION
 nvm use $X_DT_NODE_VERSION
 
